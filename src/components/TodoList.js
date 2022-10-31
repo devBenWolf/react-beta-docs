@@ -3,45 +3,43 @@ import { useState } from "react";
 
 
 const TodoList = (props) => {
-    const [value, setValue] = useState("")
+    const [editInputValue, setEditInputValue] = useState("")
     const [isEditing, setIsEditing] = useState(false)
 
     const handleEditChange = event => {
-        setValue(event.target.value)
+        setEditInputValue(event.target.value)
     }
 
-    const handleEditSubmit = event => {
+    const handleTodoListSubmit = event => {
         event.preventDefault()
-        props.handleEdit(props.id, value)
-        setValue("")
+        props.handleAppEdit(props.id, editInputValue)
+        setEditInputValue("")
         setIsEditing(false)
     }
 
     const viewTemplate = (
-        <div key={props.id} style={{display: "flex", marginTop: "20px", alignItems: "center"}}>
-            <input 
-                type="checkbox"
-                defaultChecked={props.completed}
-                onChange={() => props.handleCompleted(props.id)}
-            />
-            <p>{props.text}</p>
-            <button style={{height: "25px", marginLeft: "15px"}} onClick={() => setIsEditing(true)}>edit</button>
+        <div key={props.id} style={{display: "flex", justifyContent: "space-evenly", border: "solid red", width: "200px"}}>
+        <input type="checkbox" defaultChecked={props.completed} onChange={() => props.handleAppCompleted(props.id)} />
+            <p>{props.todo}</p>
+            <button onClick={() => setIsEditing(true)}>edit</button>
+            <button onClick={() => props.handleAppDelete(props.id)}>delete</button>
         </div>
     )
 
     const editTemplate = (
-        <form onSubmit={handleEditSubmit}>
+        <form onSubmit={handleTodoListSubmit}>
+            <p>{props.todo}</p>
             <input 
-                type="text" 
-                name="value"
-                value={value}
-                onChange = {handleEditChange}
+                type="text"
+                name="editInputValue"
+                value={editInputValue}
+                onChange={handleEditChange}
             />
             <button type="submit">submit</button>
-            <button onClick={() => setIsEditing(false)}>cancel</button>
-            
+            <button>cancel</button>
         </form>
     )
+
 
     return ( 
         <div>
