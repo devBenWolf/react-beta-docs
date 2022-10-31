@@ -5,15 +5,16 @@ const AddTask = (props) => {
 
     
     return ( 
-        <div>
+        <form onSubmit={props.handleAddTaskSubmit}>
             <input 
                 type={props.type}
                 name={props.name}
                 value={props.value}
-                onChange={props.handleChange}
+                onChange={props.handleAddTaskChange}
+
             />
-            <button type="submit" onClick={props.handleAddTodo}>submit</button>
-        </div>
+            <button type="submit">submit</button>
+        </form>
      );
 }
  
