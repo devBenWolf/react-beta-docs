@@ -1,72 +1,97 @@
-import {useState} from "react"
-import { nanoid } from "nanoid"
-import AddTask from "./components/AddTask"
-import TodoList from "./components/TodoList"
+import { nanoid } from "nanoid";
+import { useState } from "react";
+import AddTask from "./components/AddTask";
+import TodoList from "./components/TodoList";
+import FilterButton from "./components/FilterButton";
 
 
+const FILTER_MAP = {
+  All: () => true,
+  Active: (todo) => !todo.completed,
+  Completed: (todo) => todo.completed
+}
+
+const FILTER_NAMES = Object.keys(FILTER_MAP)
 
 function App() {
-  const [value, setValue] = useState("")
+  const [inputValue, setInputValue] = useState("")
   const [todos, setTodos] = useState([])
+  const [filter, setFilter] = useState("All")
 
-  const handleChange = event => {
-    setValue(event.target.value)
+  const handleAddTaskChange = event => {
+    setInputValue(event.target.value)
   }
 
-  const handleAddTodo = () => {
-    const newTodo = {id: nanoid(), text: value, completed: false}
-    setTodos([...todos, newTodo])
-    setValue("")
-  }
-
-  const handleEdit = (id, editedTodo) => {
-      console.log(editedTodo)
-    const editTodos = todos.map((todo) => {
-      if (id === todo.id) {
-        return {...todo, text: editedTodo}
+  const handleAddTaskSubmit = event => {
+    event.preventDefault()
+    setTodos([
+      ...todos,
+      {
+        id: nanoid(),
+        text: inputValue,
+        completed: false
       }
-      return todo
-    })
-    
-    setTodos(editTodos)
+    ])
+    setInputValue("")
   }
 
-  const handleCompleted = (id) => {
-    const updateCompleted = todos.map((item) => {
+  const handleAppEdit = (id, editedTodo) => {
+    const editedTodos = todos.map((item) => {
+      if (id === item.id) {
+        return {...item, text: editedTodo}
+      }
+      return item
+    })
+      setTodos(editedTodos)
+  }
+
+  const handleAppDelete = (id) => {
+    const filteredTodos = todos.filter((item) => id !== item.id)
+    setTodos(filteredTodos)
+  }
+
+  const handleAppCompleted = (id) => {
+    const completedTodos = todos.map((item) => {
       if (id === item.id) {
         return {...item, completed: !item.completed}
       }
       return item
     })
-    
-    setValue(prevState => ({
-      ...prevState,
-      completed: updateCompleted
-    }))
+    setTodos(completedTodos)
   }
 
-
-  const todoMap = todos.map((item) => (
+  const todoMap = todos.filter(FILTER_MAP[filter]).map((item) => ( 
     <TodoList 
+      todo={item.text}
       id={item.id}
-      text={item.text}
       completed={item.completed}
-      handleEdit = {handleEdit}
-      handleCompleted={handleCompleted}
+      handleAppEdit={handleAppEdit}
+      handleAppDelete={handleAppDelete}
+      handleAppCompleted={handleAppCompleted}
+    />
+  ))
+
+  const filterList = FILTER_NAMES.map((name) => (
+    <FilterButton 
+      name={name}
+      key={name}
+      isPressed={name === filter}
+      setFilter={setFilter}
     />
   ))
   
-
+  console.log(todos)
   return (
     <div style={{display: "grid", placeItems: "center"}}>
       <AddTask 
+        handleAddTaskChange={handleAddTaskChange}
+        handleAddTaskSubmit={handleAddTaskSubmit}
         type="text"
-        name="value"
-        value={value}
-        handleChange={handleChange}
-        handleAddTodo={handleAddTodo}
+        name="inputValue"
+        value={inputValue}
       />
       {todoMap}
+      {filterList}
     </div>
   );
 }
